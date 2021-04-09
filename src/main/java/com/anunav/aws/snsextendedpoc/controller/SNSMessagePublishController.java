@@ -15,9 +15,7 @@ public class SNSMessagePublishController {
     private final MessagePublishService messagePublishService;
 
     @PostMapping
-    public void publishMessage(
-            @RequestBody final String message
-    ) {
+    public void publishMessage(@RequestBody final String message) {
         log.info("Received request for SNS Message publish");
         messagePublishService.publishMessage(message);
     }

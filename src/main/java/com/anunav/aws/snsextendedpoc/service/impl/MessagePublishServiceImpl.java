@@ -23,16 +23,16 @@ public class MessagePublishServiceImpl implements MessagePublishService {
     private String TOPIC_ARN;
 
     @Value("aws.sns.message.threshold")
-    private int EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD;
+    private Integer EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD;
 
-    private final AmazonSNS snsClient;
-    private final AmazonS3 amazonS3Client;
+    private final AmazonSNS amazonSNS;
+    private final AmazonS3 amazonS3;
 
     @Override
     public void publishMessage(final String message) {
         //Create Bucket. Check before creation as this will throw an error if the bucket already exists
-        if (! amazonS3Client.doesBucketExistV2(BUCKET_NAME)) {
-            amazonS3Client.createBucket(BUCKET_NAME);
+        if (! amazonS3.doesBucketExistV2(BUCKET_NAME)) {
+            amazonS3.createBucket(BUCKET_NAME);
         }
 
         //To read message content stored in S3 transparently through SQS extended client,
@@ -47,10 +47,10 @@ public class MessagePublishServiceImpl implements MessagePublishService {
         //PayloadSizeThreshold triggers message content storage in S3 when the threshold is exceeded
         //To store all messages content in S3, use AlwaysThroughS3 flag
         final SNSExtendedClientConfiguration snsExtendedClientConfiguration = new SNSExtendedClientConfiguration()
-                .withPayloadSupportEnabled(amazonS3Client, BUCKET_NAME)
+                .withPayloadSupportEnabled(amazonS3, BUCKET_NAME)
                 .withPayloadSizeThreshold(EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD);
 
-        final AmazonSNSExtendedClient snsExtendedClient = new AmazonSNSExtendedClient(snsClient, snsExtendedClientConfiguration);
+        final AmazonSNSExtendedClient snsExtendedClient = new AmazonSNSExtendedClient(amazonSNS, snsExtendedClientConfiguration);
 
         //Publish message via SNS with storage in S3
         snsExtendedClient.publish(TOPIC_ARN, message);
