@@ -23,7 +23,7 @@ public class MessagePublishServiceImpl implements MessagePublishService {
     private String TOPIC_ARN;
 
     @Value("aws.sns.message.threshold")
-    private Integer EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD;
+    private String EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD;
 
     private final AmazonSNS amazonSNS;
     private final AmazonS3 amazonS3;
@@ -48,7 +48,7 @@ public class MessagePublishServiceImpl implements MessagePublishService {
         //To store all messages content in S3, use AlwaysThroughS3 flag
         final SNSExtendedClientConfiguration snsExtendedClientConfiguration = new SNSExtendedClientConfiguration()
                 .withPayloadSupportEnabled(amazonS3, BUCKET_NAME)
-                .withPayloadSizeThreshold(EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD);
+                .withPayloadSizeThreshold(Integer.getInteger(EXTENDED_STORAGE_MESSAGE_SIZE_THRESHOLD));
 
         final AmazonSNSExtendedClient snsExtendedClient = new AmazonSNSExtendedClient(amazonSNS, snsExtendedClientConfiguration);
 
